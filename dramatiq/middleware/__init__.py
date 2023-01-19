@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import importlib
+
 from .age_limit import AgeLimit
 from .callbacks import Callbacks
 from .current_message import CurrentMessage
@@ -40,8 +42,14 @@ __all__ = [
     "Prometheus",
 ]
 
+optional_default_middleware = []
+try:
+    if importlib.util.find_spec("prometheus_client"):
+        optional_default_middleware.append(Prometheus)
+except ModuleNotFoundError:
+    pass
 
 #: The list of middleware that are enabled by default.
-default_middleware = [
-    Prometheus, AgeLimit, TimeLimit, ShutdownNotifications, Callbacks, Pipelines, Retries
+default_middleware = optional_default_middleware + [
+    AgeLimit, TimeLimit, ShutdownNotifications, Callbacks, Pipelines, Retries
 ]
